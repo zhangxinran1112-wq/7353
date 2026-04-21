@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artistic Dimension Profiler v5.6</title>
+    <title>Artistic Dimension Profiler - Page 1</title>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -141,38 +141,8 @@
             const q = quizPool[currentIdx];
             scores[artists[side === 0 ? q.L[0] : q.R[0]].dim]++;
             currentIdx++;
-
-            if (currentIdx >= quizPool.length) {
-                if (!checkNeedsMore()) finishTest();
-                else renderTest();
-            } else {
-                renderTest();
-            }
-        }
-
-        function checkNeedsMore() {
-            let maxScore = Math.max(...scores.slice(1));
-            let tops = [];
-            for (let i = 1; i <= 6; i++) {
-                if (scores[i] === maxScore) tops.push(i);
-            }
-
-            if (tops.length > 2) {
-                const keys = Object.keys(artists);
-                for (let i = 0; i < 4; i++) {
-                    let d1 = tops[Math.floor(Math.random() * tops.length)];
-                    let d2 = tops[Math.floor(Math.random() * tops.length)];
-                    while (d1 === d2) d2 = tops[Math.floor(Math.random() * tops.length)];
-                    let a1 = keys.filter(k => artists[k].dim === d1);
-                    let a2 = keys.filter(k => artists[k].dim === d2);
-                    quizPool.push({ 
-                        L: [a1[Math.floor(Math.random() * a1.length)], 0], 
-                        R: [a2[Math.floor(Math.random() * a2.length)], 0] 
-                    });
-                }
-                return true; 
-            }
-            return false; 
+            if (currentIdx >= quizPool.length) finishTest();
+            else renderTest();
         }
 
         function finishTest() {
@@ -217,13 +187,14 @@
             `;
         }
 
-        // --- 修改后的跳转逻辑 ---
+        // --- 核心修改：确保跳转到 page2.html ---
         function startTraining(dimId) {
-            const targetUrl = 'https://zhangxinran1112wq.github.io/7353/%E6%B5%8B%E8%AF%952.html';
-            window.location.href = `${targetUrl}?dim=${dimId}`;
+            // 假设你的仓库地址是 zhangxinran1112wq.github.io/7353/
+            // 直接使用相对路径跳转，避免因拼写导致的 404
+            window.location.href = `page2.html?dim=${dimId}`;
         }
 
-        // AI Scan 逻辑保持不变
+        // AI Scan 逻辑
         const fileInp = document.getElementById('fileInp');
         const analyzeBtn = document.getElementById('analyzeBtn');
         fileInp.onchange = () => {
