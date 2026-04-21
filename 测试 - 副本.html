@@ -105,7 +105,7 @@
         const artists = {
             "Durer":  { dim: 1, files: ["Albrecht Dürer1.jpg", "Albrecht Dürer2.jpg"] },
             "James":  { dim: 1, files: ["James Jean1.png", "James Jean2.png"] },
-            "Monet":  { dim: 2, files: ["Monet1.jpg", "Monet2.jpg"] },
+            "Monet":  { dim: 2, files: ["Monet1.jpg", "Monet2.png"] },
             "Mielgo": { dim: 2, files: ["Alberto Mielgo1.png", "Alberto Mielgo2.png"] },
             "Hopper": { dim: 3, files: ["Edward Hopper1.jpg", "Edward Hopper2.jpg"] },
             "Malika": { dim: 3, files: ["Malika Favre1.png", "Malika Favre2.png"] },
@@ -150,7 +150,6 @@
             }
         }
 
-        // --- Silent Overtime Logic ---
         function checkNeedsMore() {
             let maxScore = Math.max(...scores.slice(1));
             let tops = [];
@@ -160,15 +159,12 @@
 
             if (tops.length > 2) {
                 const keys = Object.keys(artists);
-                // Background adding 4 more comparison rounds
                 for (let i = 0; i < 4; i++) {
                     let d1 = tops[Math.floor(Math.random() * tops.length)];
                     let d2 = tops[Math.floor(Math.random() * tops.length)];
                     while (d1 === d2) d2 = tops[Math.floor(Math.random() * tops.length)];
-
                     let a1 = keys.filter(k => artists[k].dim === d1);
                     let a2 = keys.filter(k => artists[k].dim === d2);
-                    
                     quizPool.push({ 
                         L: [a1[Math.floor(Math.random() * a1.length)], 0], 
                         R: [a2[Math.floor(Math.random() * a2.length)], 0] 
@@ -221,12 +217,13 @@
             `;
         }
 
+        // --- 修改后的跳转逻辑 ---
         function startTraining(dimId) {
-            localStorage.setItem('targetDimension', dimId);
-            window.location.href = 'learning.html';
+            const targetUrl = 'https://zhangxinran1112wq.github.io/7353/%E6%B5%8B%E8%AF%952.html';
+            window.location.href = `${targetUrl}?dim=${dimId}`;
         }
 
-        // AI Scan
+        // AI Scan 逻辑保持不变
         const fileInp = document.getElementById('fileInp');
         const analyzeBtn = document.getElementById('analyzeBtn');
         fileInp.onchange = () => {
