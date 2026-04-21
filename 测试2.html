@@ -207,6 +207,15 @@
                     </div>
                 </div>`;
         }
+
+        // --- 新增：页面加载时自动解析 URL 中的 dim 参数并跳转 ---
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dimId = urlParams.get('dim');
+            if (dimId && learningConfig[dimId]) {
+                enterPath(parseInt(dimId));
+            }
+        };
     </script>
 </body>
 </html>
