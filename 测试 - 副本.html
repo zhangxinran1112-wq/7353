@@ -79,8 +79,7 @@
                     <h4 class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold text-[#064439]">Self-Assessment Results</h4>
                     <p id="test-preferred" class="text-xl font-medium hidden leading-relaxed"></p>
                     <div id="test-bars" class="space-y-6"></div>
-                    <div id="test-actions" class="grid grid-cols-2 gap-4 hidden"></div>
-                </div>
+                    </div>
                 <div class="space-y-8 border-l border-black/5 pl-0 lg:pl-16">
                     <div class="flex justify-between items-start">
                         <h4 class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold text-[#064439]">AI Analysis Results</h4>
@@ -88,8 +87,7 @@
                     </div>
                     <p id="ai-preferred" class="text-xl font-medium hidden leading-relaxed"></p>
                     <div id="ai-bars" class="space-y-6"></div>
-                    <div id="ai-actions" class="grid grid-cols-2 gap-4 hidden"></div>
-                </div>
+                    </div>
             </div>
         </footer>
     </div>
@@ -203,24 +201,7 @@
                 </div>`;
             }
             document.getElementById(containerId).innerHTML = html;
-
-            const actionContainer = document.getElementById(isLeft ? "test-actions" : "ai-actions");
-            actionContainer.classList.remove('hidden');
-            const btnClass = isLeft ? "bg-[#a35d51]" : "bg-[#064439]";
-            actionContainer.innerHTML = `
-                <button onclick="startTraining(${dimA})" class="training-btn ${btnClass} text-white p-4 rounded-2xl text-xs font-bold leading-tight">
-                    ENTER <span class="text-sm block mt-1">${shortNames[dimA]} Path</span>
-                </button>
-                <button onclick="startTraining(${dimB})" class="training-btn ${btnClass} text-white p-4 rounded-2xl text-xs font-bold leading-tight">
-                    ENTER <span class="text-sm block mt-1">${shortNames[dimB]} Path</span>
-                </button>
-            `;
-        }
-
-        // --- 修改后的跳转逻辑：跳转到本地 测试2.html ---
-        function startTraining(dimId) {
-            const targetUrl = '测试2.html';
-            window.location.href = `${targetUrl}?dim=${dimId}`;
+            // 已删除生成跳转按钮的代码
         }
 
         // AI Scan 逻辑保持不变
