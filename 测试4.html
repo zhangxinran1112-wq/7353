@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastery Art | Bold Label Matrix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Lato:wght@300&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --color-deep-green: #064439; --color-cream: #f4ece1; --color-terracotta: #a35d51; }
+        body { font-family: 'Lato', sans-serif; background-color: var(--color-cream); color: var(--color-deep-green); font-size: 16px; overflow-x: hidden; }
+        h2, h3, .heading-font { font-family: 'Fraunces', serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.5); }
+        
+        .art-slot { 
+            background: #fff; border-radius: 12px; overflow: hidden; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer;
+            position: relative; display: flex; flex-direction: column;
+        }
+        
+        .img-container { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: #fdfcfb; position: relative; }
+        .art-slot img { width: 100%; height: 100%; object-fit: cover !important; display: none; }
+        .art-slot.has-img img { display: block; }
+        .art-slot.has-img .upload-placeholder { display: none; }
+        .upload-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(6, 68, 57, 0.1); }
+
+        .grid-num {
+            position: absolute; top: 8px; left: 8px; background: var(--color-deep-green); color: white;
+            width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; 
+            font-size: 11px; font-weight: 800; z-index: 20;
+        }
+
+        .custom-select {
+            appearance: none; background: white; border: 2px solid rgba(6, 68, 57, 0.1);
+            padding: 0.8rem 2.5rem 0.8rem 1.2rem; border-radius: 100px; font-weight: bold; font-size: 14px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23064439' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.9em;
+        }
+
+        /* 预览层 */
+        #preview-overlay {
+            position: fixed; inset: 0; background: rgba(6, 68, 57, 0.98);
+            z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(15px); padding: 15px;
+        }
+        
+        #final-image-wrapper { 
+            background: white; border-radius: 20px; 
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            max-height: 85vh; width: auto; display: flex; overflow: hidden;
+        }
+
+        #final-image-placeholder { height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; }
+        #final-image-placeholder > div { transform-origin: center; }
+    </style>
+</head>
+<body class="p-6 min-h-screen">
+
+    <div class="max-w-[1100px] mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+            <h2 class="text-4xl font-black italic text-[#064439] tracking-tighter">Art Archive</h2>
+            <select id="mode-select" class="custom-select heading-font">
+                <option value="5year">5-Year Journey (2022-2026)</option>
+                <option value="6month">6-Month Summary (Jan-Jun)</option>
+                <option value="color">Color Spectrum (6 Shades)</option>
+            </select>
+        </header>
+
+        <div class="glass-card p-6 shadow-2xl">
+            <div id="capture-zone" class="bg-white p-6 rounded-[20px] w-full mx-auto" style="width: 850px;">
+                <h3 id="grid-title" class="text-3xl font-black italic text-[#064439] mb-6 text-center tracking-tight border-b pb-4">5-Year Artistic Journey</h3>
+                
+                <div id="image-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                
+                <div class="mt-8 flex justify-between items-end opacity-40">
+                    <p class="heading-font font-bold text-sm italic">Mastery Art Studio</p>
+                    <p class="text-[10px] uppercase tracking-widest">Portfolio Archive 2026</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <button id="complete-btn" class="bg-[#064439] text-white px-12 py-4 rounded-full font-black uppercase tracking-[0.2em] shadow-lg hover:bg-[#a35d51] transition-all transform active:scale-95 text-sm">Review & Finalize</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="preview-overlay">
+        <div id="final-image-wrapper">
+            <div id="final-image-placeholder"></div>
+        </div>
+        <div class="mt-6 flex gap-4">
+            <button id="cancel-btn" class="text-white border border-white/30 px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-white/10 transition">Edit</button>
+            <button id="download-btn" class="bg-[#a35d51] text-white px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest hover:scale-105 transition shadow-xl">Download PNG</button>
+        </div>
+    </div>
+
+    <input type="file" id="global-file-inp" class="hidden" accept="image/*">
+
+    <script>
+        const modeSelect = document.getElementById('mode-select');
+        const imageGrid = document.getElementById('image-grid');
+        const gridTitle = document.getElementById('grid-title');
+        const fileInp = document.getElementById('global-file-inp');
+        const overlay = document.getElementById('preview-overlay');
+        const finalPlaceholder = document.getElementById('final-image-placeholder');
+        let currentTargetSlot = null;
+
+        const configs = {
+            '5year': { title: '5-Year Artistic Journey', count: 5, labels: ['2022', '2023', '2024', '2025', '2026'] },
+            '6month': { title: '2026 Half-Year Summary', count: 6, labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'] },
+            'color': { title: 'Color Palette Spectrum', count: 6, labels: ['RED', 'ORANGE', 'YELLOW', 'BLUE', 'GREEN', 'PURPLE'] }
+        };
+
+        function initGrid() {
+            const cfg = configs[modeSelect.value];
+            gridTitle.innerText = cfg.title;
+            imageGrid.innerHTML = '';
+            for(let i = 0; i < cfg.count; i++) {
+                const slot = document.createElement('div');
+                slot.className = "art-slot";
+                slot.innerHTML = `
+                    <div class="grid-num">${i+1}</div>
+                    <div class="img-container">
+                        <div class="upload-placeholder"><span class="text-2xl">⊕</span></div>
+                        <img src="" alt="Work">
+                    </div>
+                    <div class="py-3 px-1 bg-gray-50 text-center border-t border-gray-100 flex-grow flex items-center justify-center">
+                        <p class="heading-font font-black text-sm tracking-widest text-[#a35d51] uppercase">${cfg.labels[i]}</p>
+                    </div>
+                `;
+                slot.onclick = () => { currentTargetSlot = slot; fileInp.click(); };
+                imageGrid.appendChild(slot);
+            }
+        }
+
+        fileInp.onchange = (e) => {
+            const file = e.target.files[0];
+            if(file && currentTargetSlot) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = currentTargetSlot.querySelector('img');
+                    img.src = ev.target.result;
+                    currentTargetSlot.classList.add('has-img');
+                };
+                reader.readAsDataURL(file);
+            }
+            fileInp.value = '';
+        };
+
+        modeSelect.onchange = initGrid;
+        initGrid();
+
+        document.getElementById('complete-btn').onclick = () => {
+            const original = document.getElementById('capture-zone');
+            finalPlaceholder.innerHTML = '';
+            const clone = original.cloneNode(true);
+            
+            const screenH = window.innerHeight * 0.85;
+            const originalH = original.offsetHeight;
+            const scale = screenH / originalH;
+
+            finalPlaceholder.style.height = `${screenH}px`;
+            finalPlaceholder.style.width = `${original.offsetWidth * scale}px`;
+            
+            clone.style.transform = `scale(${scale})`;
+            clone.style.width = `${original.offsetWidth}px`;
+            
+            finalPlaceholder.appendChild(clone);
+            overlay.style.display = 'flex';
+        };
+
+        document.getElementById('cancel-btn').onclick = () => { overlay.style.display = 'none'; };
+
+        document.getElementById('download-btn').onclick = () => {
+            const target = document.getElementById('capture-zone');
+            const originalWidth = target.style.width;
+            target.style.width = "900px"; 
+
+            html2canvas(target, {
+                scale: 3, 
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Portfolio-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                target.style.width = originalWidth;
+                overlay.style.display = 'none';
+            });
+        };
+    </script>
+</body>
+</html>

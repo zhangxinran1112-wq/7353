@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastery Art Studio | Elite Legacy Archive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Lato:wght@300&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --color-deep-green: #064439; --color-cream: #f4ece1; --color-terracotta: #a35d51; }
+        
+        body { 
+            font-family: 'Lato', sans-serif; 
+            font-weight: 300; 
+            background-color: var(--color-cream); 
+            color: var(--color-deep-green);
+            font-size: 18px; 
+        }
+
+        h2, h3, .heading-font, .artist-name { 
+            font-family: 'Fraunces', serif; 
+        }
+
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.5); }
+        .artist-item { transition: 0.3s; cursor: pointer; filter: grayscale(1); opacity: 0.5; border-left: 0px solid var(--color-terracotta); }
+        .artist-item.active { filter: grayscale(0); opacity: 1; border-left: 12px solid var(--color-terracotta); background: white; padding-left: 1.5rem; }
+        
+        .loader { width: 60px; height: 60px; border: 6px solid var(--color-deep-green); border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .restriction-notice {
+            font-size: 18px;
+            opacity: 0.6;
+            max-width: 85%;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="p-8 min-h-screen">
+
+    <div class="max-w-[1850px] mx-auto grid lg:grid-cols-12 gap-10">
+        
+        <aside class="lg:col-span-3">
+            <h2 class="text-6xl font-black italic mb-4 text-[#064439] tracking-tighter">Art Masters</h2>
+            <p class="text-xl mb-8 opacity-70 leading-relaxed italic">Choose your favorite master and let them paint for you.</p>
+            <div id="artist-list" class="space-y-4 overflow-y-auto max-h-[75vh] pr-4"></div>
+        </aside>
+
+        <main class="lg:col-span-6">
+            <div class="glass-card p-12 min-h-[850px] flex flex-col relative shadow-2xl">
+                <div id="stage-upload" class="flex-grow flex flex-col">
+                    <div id="drop-zone" class="w-full flex-grow border-4 border-dashed border-[#064439]/10 rounded-[40px] flex items-center justify-center cursor-pointer hover:bg-white/40 transition-all overflow-hidden" onclick="document.getElementById('file-inp').click()">
+                        <input type="file" id="file-inp" class="hidden" accept="image/*">
+                        <div id="hint" class="text-center opacity-30">
+                            <p class="text-8xl mb-6">🎨</p>
+                            <p class="text-2xl font-bold">Drop your sketch to begin</p>
+                        </div>
+                        <img id="preview" class="hidden w-full h-full object-contain p-8">
+                    </div>
+                    <button id="gen-btn" class="heading-font w-full mt-10 bg-[#064439] text-white py-8 rounded-3xl font-black text-2xl tracking-[0.5em] shadow-xl hover:bg-[#a35d51] transition-all transform active:scale-95 uppercase">Start Synthesis</button>
+                </div>
+
+                <div id="stage-result" class="hidden space-y-10 animate-in fade-in duration-1000">
+                    <div class="relative">
+                        <img id="img-gen" class="w-full aspect-square object-cover rounded-[40px] border-[12px] border-white shadow-2xl bg-gray-50">
+                        <div class="absolute bottom-8 left-8 right-8 p-8 bg-black/60 backdrop-blur-2xl rounded-3xl text-white">
+                            <p id="res-quote" class="italic text-2xl mb-3 leading-snug"></p>
+                            <p class="text-lg opacity-80 uppercase tracking-widest">— <span id="res-author"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-6 py-4 text-center">
+                        <p class="restriction-notice">
+                            Due to Doubao model limitations, this feature can currently only generate images normally and cannot accurately translate user-uploaded works.
+                        </p>
+
+                        <div class="flex gap-8 items-center mt-4">
+                            <button id="dl-btn" class="bg-[#064439] text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-[#a35d51] transition shadow-lg">Download Image</button>
+                            <button onclick="location.reload()" class="text-[#064439] font-bold underline underline-offset-[10px] uppercase text-lg tracking-[0.1em] hover:text-[#a35d51] transition">Upload New</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mask" class="hidden absolute inset-0 bg-[#f4ece1]/98 z-50 flex flex-col items-center justify-center rounded-[40px]">
+                    <div class="loader mb-10"></div>
+                    <p class="heading-font text-2xl font-black text-[#064439] tracking-widest animate-pulse italic">Channelling artistic soul...</p>
+                </div>
+            </div>
+        </main>
+
+        <aside class="lg:col-span-3">
+            <div id="data-panel" class="glass-card p-10 h-full flex flex-col border-t-[16px] border-[#a35d51] shadow-xl">
+                <div id="master-profile" class="hidden flex flex-col h-full">
+                    <div class="relative mb-10 h-80 w-full rounded-[32px] overflow-hidden shadow-2xl border-4 border-white">
+                         <img id="ui-photo" class="w-full h-full object-cover" src="">
+                    </div>
+                    <h3 id="ui-name" class="text-4xl font-black text-[#064439] mb-8 leading-tight"></h3>
+                    
+                    <div class="space-y-8 flex-grow overflow-y-auto pr-2">
+                        <div class="p-6 bg-white/50 rounded-3xl border border-white/50">
+                            <p class="heading-font text-xs font-black text-[#a35d51] mb-3 uppercase tracking-[0.2em]">Training Period</p>
+                            <p id="ui-time" class="text-lg leading-relaxed text-[#064439] font-bold"></p>
+                        </div>
+                        <div class="p-6 bg-white/50 rounded-3xl border border-white/50">
+                            <p class="heading-font text-xs font-black text-[#a35d51] mb-3 uppercase tracking-[0.2em]">Lifetime Works</p>
+                            <p id="ui-count" class="text-lg leading-relaxed text-[#064439] font-bold"></p>
+                        </div>
+                        <div class="p-6 border-l-8 border-[#a35d51] italic text-xl text-[#064439] bg-[#a35d51]/5 leading-relaxed">
+                            “<span id="ui-quote"></span>”
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="master-empty" class="h-full flex items-center justify-center text-center opacity-30">
+                    <p class="heading-font text-2xl font-bold italic leading-relaxed">Select a mentor to load <br> their legacy archive</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const API_KEY = "ark-343864cf-f58f-414d-8d44-77931495a5ad-8e1f3";
+        const ENDPOINT_ID = "ep-20260421071542-rgt8m";
+        const API_URL = "https://ark.cn-beijing.volces.com/api/v3/images/generations";
+
+        const IMG_PATH = "风格库3/"; 
+
+        const masters = [
+            { zh: "Albrecht Dürer", file: "Albrecht Dürer.jpg", time: "Apprenticed at 15 under his father, followed by 3 years in Wolgemut's studio and 4 years of wandering practice.", count: "Approx. 100 oil paintings, 1,000 drawings, and hundreds of woodcuts.", quote: "Nature holds the beautiful, for the artist who has the insight to extract it." },
+            { zh: "James Jean", file: "James Jean.png", time: "Graduated from SVA in New York with 4 years of professional training.", count: "Thousands of illustrations, comic covers, and large-scale contemporary oil paintings.", quote: "The process of creation is far more important than the final product." },
+            { zh: "Claude Monet", file: "Claude Monet.png", time: "Studied under Boudin at 10, then at Atelier Gleyre, taking 10 years to define his style.", count: "Around 2,500 works including oils, drawings, and pastels.", quote: "I would like to paint as a bird sings." },
+            { zh: "Alberto Mielgo", file: "Alberto Mielgo.jpg", time: "Primarily self-taught, honing skills through 20+ years in animation and visual design.", count: "Immense volume of digital paints, film concepts, and fine art pieces.", quote: "Style is the byproduct of staying honest." },
+            { zh: "Edward Hopper", file: "Edward Hopper.png", time: "Studied for 6 years at the New York Institute of Art and Design under Robert Henri.", count: "366 oil paintings, plus numerous etchings and watercolors.", quote: "If you could say it in words, there would be no reason to paint." },
+            { zh: "Malika Favre", file: "Malika Favre.jpg", time: "Spent 5 years studying graphic design and illustration at ECV in Paris.", count: "Iconic commercial commissions and magazine covers totaling in the thousands.", quote: "Less is more." },
+            { zh: "William Bailey", file: "William Bailey.png", time: "Studied under Josef Albers at Yale with 6 to 8 years of advanced academic training.", count: "Limited and precious output due to an extremely meticulous and slow process.", quote: "Painting is a way of seeing." },
+            { zh: "Pedro Campos", file: "Pedro Campos.png", time: "Graduated from the Madrid School of Conservation and Restoration with 5 years of training.", count: "Very few. Produces only a few hyper-realistic pieces per year, totaling around 100+.", quote: "I don't look for grandeur; I look for essence." },
+            { zh: "Édouard Manet", file: "Édouard Manet.jpg", time: "Spent 6 years in Thomas Couture's studio undergoing strict classical training.", count: "420 oil paintings, plus many watercolors and prints.", quote: "You must be of your time and paint what you see." },
+            { zh: "Pascal Campion", file: "Pascal Campion.jpg", time: "Graduated from Art Center College of Design with 4 years of professional education.", count: "Over 5,000 digital works created through his 'Sketch of the Day' habit.", quote: "Capturing the feeling of the moment is more important than being perfect." }
+        ];
+
+        let selected = null;
+
+        const artistList = document.getElementById('artist-list');
+        masters.forEach(m => {
+            const div = document.createElement('div');
+            div.className = "artist-item p-6 flex items-center gap-6 rounded-[32px]";
+            div.innerHTML = `<img src="${IMG_PATH}${m.file}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md bg-gray-200">
+                             <p class="artist-name text-xl leading-tight">${m.zh}</p>`;
+            div.onclick = () => {
+                document.querySelectorAll('.artist-item').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
+                selected = m;
+                updateArchive(m);
+            };
+            artistList.appendChild(div);
+        });
+
+        function updateArchive(m) {
+            document.getElementById('master-empty').classList.add('hidden');
+            document.getElementById('master-profile').classList.remove('hidden');
+            document.getElementById('ui-photo').src = `${IMG_PATH}${m.file}`;
+            document.getElementById('ui-name').innerText = m.zh;
+            document.getElementById('ui-time').innerText = m.time;
+            document.getElementById('ui-count').innerText = m.count;
+            document.getElementById('ui-quote').innerText = m.quote;
+        }
+
+        document.getElementById('file-inp').onchange = (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('preview').src = ev.target.result;
+                    document.getElementById('preview').classList.remove('hidden');
+                    document.getElementById('hint').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        document.getElementById('gen-btn').onclick = async () => {
+            if(!selected || !document.getElementById('file-inp').files[0]) return alert("Please select a master and upload a sketch.");
+            document.getElementById('mask').classList.remove('hidden');
+
+            try {
+                const b64 = await new Promise(res => {
+                    const r = new FileReader();
+                    r.onload = () => res(r.result.split(',')[1]);
+                    r.readAsDataURL(document.getElementById('file-inp').files[0]);
+                });
+
+                const resp = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY.trim()}` },
+                    body: JSON.stringify({
+                        model: ENDPOINT_ID,
+                        prompt: `Artistic synthesis. Strictly follow the input structure. Apply style and palette of ${selected.zh}. 2048x2048 resolution.`,
+                        image_base64: b64,
+                        size: "2048x2048", 
+                        strength: 0.4
+                    })
+                });
+
+                const data = await resp.json();
+                if(data.error) throw new Error(data.error.message);
+
+                document.getElementById('mask').classList.add('hidden');
+                document.getElementById('stage-upload').classList.add('hidden');
+                document.getElementById('stage-result').classList.remove('hidden');
+
+                const imgUrl = data.data[0].url || ("data:image/png;base64," + data.data[0].b64_json);
+                document.getElementById('img-gen').src = imgUrl;
+                document.getElementById('res-quote').innerText = selected.quote;
+                document.getElementById('res-author').innerText = selected.zh;
+
+                // Download Logic
+                document.getElementById('dl-btn').onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = imgUrl;
+                    link.download = `masterpiece-${selected.zh.replace(/\s+/g, '-')}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+
+            } catch (err) {
+                document.getElementById('mask').classList.add('hidden');
+                alert("Synthesis Error: " + err.message);
+            }
+        };
+    </script>
+</body>
+</html>

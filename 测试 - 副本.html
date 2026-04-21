@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artistic Dimension Profiler v5.6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --color-deep-green: #064439;
+            --color-soft-blue: #a3b8ed;
+            --color-terracotta: #a35d51;
+            --color-cream: #f4ece1;
+            --color-highlight: #fef08a;
+        }
+        body { font-family: 'Lato', sans-serif; background-color: var(--color-cream); color: var(--color-deep-green); font-size: 1.1rem; }
+        h1, h2, h3, h4 { font-family: 'Fraunces', serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 28px; }
+        .highlight-tag { background-color: var(--color-highlight); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .art-option { cursor: pointer; transition: all 0.4s; border: 2px solid transparent; border-radius: 20px; background: rgba(0,0,0,0.02); overflow: hidden; }
+        .art-option:hover { transform: scale(1.02); border-color: var(--color-soft-blue); }
+        .art-option img { width: 100%; height: 380px; object-fit: contain; padding: 15px; }
+        .bar-bg { background: rgba(6, 68, 57, 0.08); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 8px; }
+        .bar-fill { background: var(--color-terracotta); height: 100%; transition: width 0.8s; }
+        .bar-fill-blue { background: var(--color-soft-blue); height: 100%; transition: width 0.8s; }
+        .training-btn { transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .training-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    </style>
+</head>
+<body class="p-6 md:p-12 min-h-screen leading-relaxed">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-7xl mb-4 font-bold">Artistic Dimension Profiler</h1>
+            <p class="text-sm tracking-[0.4em] opacity-50 uppercase">Precision Analysis & Personalized Training</p>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-10 mb-10">
+            <section class="glass-card p-10 flex flex-col">
+                <div class="flex justify-between items-end mb-2">
+                    <h2 class="text-3xl italic font-bold text-[#064439]">01. Profiling Quiz</h2>
+                    <span id="q-progress" class="text-xs font-bold opacity-40 uppercase tracking-widest">Q 1 / 12</span>
+                </div>
+                <p class="text-lg italic opacity-60 mb-6">Select the artwork that resonates with you most.</p>
+                <div class="bar-bg mb-10"><div id="q-bar" class="bar-fill" style="width: 8.3%"></div></div>
+
+                <div id="quiz-ui">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="art-option" onclick="select(0)">
+                            <img id="img-left" src=""><div class="p-4 text-center text-xs uppercase tracking-widest opacity-40">Option A</div>
+                        </div>
+                        <div class="art-option" onclick="select(1)">
+                            <img id="img-right" src=""><div class="p-4 text-center text-xs uppercase tracking-widest opacity-40">Option B</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="quiz-finished" class="hidden text-center py-24 italic opacity-50 text-2xl uppercase tracking-widest">Profiling Complete</div>
+            </section>
+
+            <section class="glass-card p-10 flex flex-col">
+                <h2 class="text-3xl italic mb-8 font-bold text-[#064439]">02. AI Visual Scan</h2>
+                <div class="border-2 border-dashed border-[#a3b8ed] rounded-3xl p-10 text-center cursor-pointer bg-white/10 hover:bg-white/30 transition flex-grow flex flex-col justify-center" onclick="document.getElementById('fileInp').click()">
+                    <input type="file" id="fileInp" accept="image/*" class="hidden">
+                    <div id="upload-hint">
+                        <p class="text-xl font-bold uppercase tracking-[0.2em]">Upload Your Work</p>
+                        <p class="text-xs opacity-40 mt-2 italic">Analyze your personal style via AI</p>
+                    </div>
+                    <img id="preview-img" class="hidden rounded-2xl shadow-lg max-h-80 mx-auto object-contain" src="">
+                </div>
+                <button id="analyzeBtn" class="mt-8 bg-[#064439] text-white w-full py-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] hover:opacity-90 transition-all">Initiate AI Scan</button>
+            </section>
+        </div>
+
+        <footer class="glass-card p-10">
+            <h3 class="text-3xl italic mb-10 border-b border-black/5 pb-6 font-bold">Report & Specialized Training</h3>
+            <div class="grid lg:grid-cols-2 gap-16">
+                <div class="space-y-8">
+                    <h4 class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold text-[#064439]">Self-Assessment Results</h4>
+                    <p id="test-preferred" class="text-xl font-medium hidden leading-relaxed"></p>
+                    <div id="test-bars" class="space-y-6"></div>
+                    <div id="test-actions" class="grid grid-cols-2 gap-4 hidden"></div>
+                </div>
+                <div class="space-y-8 border-l border-black/5 pl-0 lg:pl-16">
+                    <div class="flex justify-between items-start">
+                        <h4 class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold text-[#064439]">AI Analysis Results</h4>
+                        <div id="ai-loader" class="hidden text-xs animate-pulse text-[#a35d51] font-bold uppercase">Scanning...</div>
+                    </div>
+                    <p id="ai-preferred" class="text-xl font-medium hidden leading-relaxed"></p>
+                    <div id="ai-bars" class="space-y-6"></div>
+                    <div id="ai-actions" class="grid grid-cols-2 gap-4 hidden"></div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const ARK_API_KEY = "ark-343864cf-f58f-414d-8d44-77931495a5ad-8e1f3"; 
+        const ENDPOINT_ID = "ep-20260421011242-42mzq"; 
+        const folder = "风格库/";
+
+        const dimNames = ["", "The Linear Dimension", "The Painterly Dimension", "The Planar Dimension", "The Recessional Dimension", "The Multiplicity Dimension", "The Unity Dimension"];
+        const shortNames = ["", "Linear", "Painterly", "Planar", "Recessional", "Multiplicity", "Unity"];
+        
+        const artists = {
+            "Durer":  { dim: 1, files: ["Albrecht Dürer1.jpg", "Albrecht Dürer2.jpg"] },
+            "James":  { dim: 1, files: ["James Jean1.png", "James Jean2.png"] },
+            "Monet":  { dim: 2, files: ["Monet1.jpg", "Monet2.jpg"] },
+            "Mielgo": { dim: 2, files: ["Alberto Mielgo1.png", "Alberto Mielgo2.png"] },
+            "Hopper": { dim: 3, files: ["Edward Hopper1.jpg", "Edward Hopper2.jpg"] },
+            "Malika": { dim: 3, files: ["Malika Favre1.png", "Malika Favre2.png"] },
+            "Ferriss":{ dim: 4, files: ["Hugh Ferriss1.jpg", "Hugh Ferriss2.jpg"] },
+            "omao":   { dim: 4, files: ["omao1.jpg", "omao2.png"] },
+            "Bailey": { dim: 5, files: ["William Bailey1.png", "William Bailey2.png"] },
+            "Campos": { dim: 5, files: ["Pedro Campos1.jpg", "Pedro Campos2.png"] },
+            "Manet":  { dim: 6, files: ["Édouard Manet1.jpg", "Édouard Manet2.jpg"] },
+            "Campion":{ dim: 6, files: ["Pascal Campion1.png", "Pascal Campion2.png"] }
+        };
+
+        let currentIdx = 0, scores = [0,0,0,0,0,0,0];
+        let quizPool = [
+            { L: ["Durer", 0], R: ["Monet", 0] }, { L: ["James", 0], R: ["Mielgo", 0] },
+            { L: ["Hopper", 0], R: ["Ferriss", 0] }, { L: ["Malika", 0], R: ["omao", 0] },
+            { L: ["Bailey", 0], R: ["Manet", 0] }, { L: ["Campos", 0], R: ["Campion", 0] },
+            { L: ["Durer", 1], R: ["Monet", 1] }, { L: ["James", 1], R: ["Mielgo", 1] },
+            { L: ["Hopper", 1], R: ["Ferriss", 1] }, { L: ["Malika", 1], R: ["omao", 1] },
+            { L: ["Bailey", 1], R: ["Manet", 1] }, { L: ["Campos", 1], R: ["Campion", 1] }
+        ];
+
+        function renderTest() {
+            if (currentIdx < quizPool.length) {
+                const q = quizPool[currentIdx];
+                document.getElementById("q-progress").innerText = `Q ${currentIdx + 1} / ${quizPool.length}`;
+                document.getElementById("q-bar").style.width = ((currentIdx + 1) / quizPool.length * 100) + "%";
+                document.getElementById("img-left").src = folder + artists[q.L[0]].files[q.L[1]];
+                document.getElementById("img-right").src = folder + artists[q.R[0]].files[q.R[1]];
+            }
+        }
+
+        function select(side) {
+            const q = quizPool[currentIdx];
+            scores[artists[side === 0 ? q.L[0] : q.R[0]].dim]++;
+            currentIdx++;
+
+            if (currentIdx >= quizPool.length) {
+                if (!checkNeedsMore()) finishTest();
+                else renderTest();
+            } else {
+                renderTest();
+            }
+        }
+
+        // --- Silent Overtime Logic ---
+        function checkNeedsMore() {
+            let maxScore = Math.max(...scores.slice(1));
+            let tops = [];
+            for (let i = 1; i <= 6; i++) {
+                if (scores[i] === maxScore) tops.push(i);
+            }
+
+            if (tops.length > 2) {
+                const keys = Object.keys(artists);
+                // Background adding 4 more comparison rounds
+                for (let i = 0; i < 4; i++) {
+                    let d1 = tops[Math.floor(Math.random() * tops.length)];
+                    let d2 = tops[Math.floor(Math.random() * tops.length)];
+                    while (d1 === d2) d2 = tops[Math.floor(Math.random() * tops.length)];
+
+                    let a1 = keys.filter(k => artists[k].dim === d1);
+                    let a2 = keys.filter(k => artists[k].dim === d2);
+                    
+                    quizPool.push({ 
+                        L: [a1[Math.floor(Math.random() * a1.length)], 0], 
+                        R: [a2[Math.floor(Math.random() * a2.length)], 0] 
+                    });
+                }
+                return true; 
+            }
+            return false; 
+        }
+
+        function finishTest() {
+            document.getElementById("quiz-ui").classList.add("hidden");
+            document.getElementById("quiz-finished").classList.remove("hidden");
+            drawBars("test-bars", scores, Math.max(...scores.slice(1)), true);
+        }
+
+        function drawBars(containerId, dataArray, maxVal, isLeft) {
+            let sortedIdx = [1,2,3,4,5,6].sort((a, b) => {
+                let vA = isLeft ? dataArray[a] : dataArray[a-1];
+                let vB = isLeft ? dataArray[b] : dataArray[b-1];
+                return vB - vA;
+            });
+            
+            const dimA = sortedIdx[0], dimB = sortedIdx[1];
+            const tId = isLeft ? "test-preferred" : "ai-preferred";
+            document.getElementById(tId).innerHTML = `Target Path: <br><span class="highlight-tag">${dimNames[dimA]}</span> & <span class="highlight-tag">${dimNames[dimB]}</span>`;
+            document.getElementById(tId).classList.remove('hidden');
+
+            let html = "";
+            for(let i=1; i<=6; i++) {
+                const val = isLeft ? dataArray[i] : dataArray[i-1];
+                const percent = (val / (maxVal || 1)) * 100;
+                html += `<div>
+                    <div class="flex justify-between text-xs uppercase opacity-60 font-bold"><span>${shortNames[i]}</span><span>${val}</span></div>
+                    <div class="bar-bg"><div class="${isLeft?'bar-fill':'bar-fill-blue'}" style="width:${percent}%"></div></div>
+                </div>`;
+            }
+            document.getElementById(containerId).innerHTML = html;
+
+            const actionContainer = document.getElementById(isLeft ? "test-actions" : "ai-actions");
+            actionContainer.classList.remove('hidden');
+            const btnClass = isLeft ? "bg-[#a35d51]" : "bg-[#064439]";
+            actionContainer.innerHTML = `
+                <button onclick="startTraining(${dimA})" class="training-btn ${btnClass} text-white p-4 rounded-2xl text-xs font-bold leading-tight">
+                    ENTER <span class="text-sm block mt-1">${shortNames[dimA]} Path</span>
+                </button>
+                <button onclick="startTraining(${dimB})" class="training-btn ${btnClass} text-white p-4 rounded-2xl text-xs font-bold leading-tight">
+                    ENTER <span class="text-sm block mt-1">${shortNames[dimB]} Path</span>
+                </button>
+            `;
+        }
+
+        function startTraining(dimId) {
+            localStorage.setItem('targetDimension', dimId);
+            window.location.href = 'learning.html';
+        }
+
+        // AI Scan
+        const fileInp = document.getElementById('fileInp');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        fileInp.onchange = () => {
+            const file = fileInp.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = (e) => { 
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preview-img').classList.remove('hidden');
+                    document.getElementById('upload-hint').classList.add('hidden');
+                };
+                r.readAsDataURL(file);
+            }
+        };
+
+        analyzeBtn.onclick = async () => {
+            const file = fileInp.files[0];
+            if (!file) return alert("Please upload an image first.");
+            analyzeBtn.disabled = true;
+            document.getElementById("ai-loader").classList.remove("hidden");
+            try {
+                const base64 = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = () => r(rd.result.split(',')[1]);
+                    rd.readAsDataURL(file);
+                });
+                const resp = await fetch("https://ark.cn-beijing.volces.com/api/v3/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${ARK_API_KEY.trim()}` },
+                    body: JSON.stringify({
+                        model: ENDPOINT_ID,
+                        messages: [{
+                            role: "user",
+                            content: [
+                                { type: "text", text: "Analyze art. Return ONLY JSON array of 6 integers (0-10) for: Linear, Painterly, Planar, Recessional, Multiplicity, Unity." },
+                                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64}` } }
+                            ]
+                        }]
+                    })
+                });
+                const resData = await resp.json();
+                const aiValues = JSON.parse(resData.choices[0].message.content.match(/\[.*\]/)[0]);
+                drawBars("ai-bars", aiValues, 10, false);
+            } catch (e) { console.error(e); } finally {
+                analyzeBtn.disabled = false;
+                document.getElementById("ai-loader").classList.add("hidden");
+            }
+        };
+
+        renderTest();
+    </script>
+</body>
+</html>
