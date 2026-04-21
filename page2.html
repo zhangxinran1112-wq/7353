@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artistic Mastery Workshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --color-deep-green: #064439; --color-cream: #f4ece1; --color-terracotta: #a35d51; }
+        body { font-family: 'Lato', sans-serif; background-color: var(--color-cream); color: var(--color-deep-green); }
+        h1, h2, h3 { font-family: 'Fraunces', serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .art-img { max-height: 400px; object-fit: contain; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: white; }
+        .nav-card { transition: all 0.3s; cursor: pointer; border: 1px solid rgba(6, 68, 57, 0.1); }
+        .nav-card:hover { transform: translateY(-5px); background: white; border-color: var(--color-terracotta); }
+        .loader { border: 4px solid rgba(163, 93, 81, 0.1); border-top: 4px solid var(--color-terracotta); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .bar-grow { animation: barGrow 1.5s ease-out forwards; transform-origin: left; }
+        @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen">
+
+    <div class="max-w-6xl mx-auto">
+        <div id="home-screen" class="space-y-12">
+            <header class="text-center space-y-4">
+                <h1 class="text-5xl md:text-7xl font-bold">Training Hub</h1>
+                <p class="text-sm tracking-[0.4em] opacity-50 uppercase">Select a dimension to begin training</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div onclick="enterPath(1)" class="nav-card glass-card p-8 text-center"><h3 class="text-2xl mb-1">Linear</h3><p class="text-xs opacity-50 uppercase tracking-widest">Line & Contour</p></div>
+                <div onclick="enterPath(2)" class="nav-card glass-card p-8 text-center"><h3 class="text-2xl mb-1">Painterly</h3><p class="text-xs opacity-50 uppercase tracking-widest">Planar Mass</p></div>
+                <div onclick="enterPath(3)" class="nav-card glass-card p-8 text-center"><h3 class="text-2xl mb-1">Planar</h3><p class="text-xs opacity-50 uppercase tracking-widest">Impressionistic Style</p></div>
+                <div class="nav-card glass-card p-8 text-center border-dashed opacity-40 cursor-not-allowed"><h3 class="text-2xl mb-1 text-[#a35d51]">Recessional</h3><p class="text-xs font-bold uppercase tracking-widest">Coming Soon</p></div>
+                <div onclick="enterPath(5)" class="nav-card glass-card p-8 text-center"><h3 class="text-2xl mb-1">Multiplicity</h3><p class="text-xs opacity-50 uppercase tracking-widest">Structural Abstraction</p></div>
+                <div onclick="enterPath(6)" class="nav-card glass-card p-8 text-center"><h3 class="text-2xl mb-1">Unity</h3><p class="text-xs opacity-50 uppercase tracking-widest">Delicate Rendering</p></div>
+            </div>
+        </div>
+
+        <div id="training-screen" class="hidden">
+            <header class="flex justify-between items-end mb-8 border-b border-black/5 pb-6">
+                <div>
+                    <p id="dim-label" class="text-xs uppercase tracking-[0.3em] opacity-40 font-bold mb-2"></p>
+                    <h1 id="dim-title" class="text-4xl font-bold"></h1>
+                </div>
+                <button onclick="location.reload()" class="text-xs border border-[#064439]/30 px-6 py-2 rounded-full hover:bg-[#064439] hover:text-white transition-all font-bold uppercase tracking-widest">Back to Hub</button>
+            </header>
+            <section id="step-ui" class="glass-card p-6 md:p-10 min-h-[500px] flex flex-col justify-center"></section>
+        </div>
+    </div>
+
+    <script>
+        const ARK_API_KEY = "ark-343864cf-f58f-414d-8d44-77931495a5ad-8e1f3";
+        const ENDPOINT_ID = "ep-20260421011242-42mzq";
+        const folder = "风格库2/";
+
+        const learningConfig = {
+            1: { 
+                name: "Linear", title: "Linear Mastery", img1: "Linear1.PNG", img2: "Linear2.png", author: "James Jean",
+                analysis: "<b>1. Dynamic Line Weight:</b> Lines thicken at joints and taper into thin wisps on lit surfaces, creating a sense of 'breath'.<br><b>2. Decorative Abstraction:</b> Lines follow bone and muscle structures, preserving volume while adding a surrealist aesthetic.",
+                prompt: ["Curvilinear Smoothness", "Structural Weighting Logic", "Line Breath Control"]
+            },
+            2: { 
+                name: "Painterly", title: "Painterly Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Malika Favre",
+                analysis: "<b>1. Extreme Shape Compression:</b> Relying on negative space to define objects, completely avoiding gradients.<br><b>2. Color-Driven Space:</b> Creating depth through overlapping silhouettes and color adjacency rather than perspective.",
+                prompt: ["Silhouette Recognition", "Value Compression Boldness", "Edge Definition Precision"]
+            },
+            3: { 
+                name: "Planar", title: "Planar Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Claude Monet",
+                analysis: "<b>1. Temperature Contrast:</b> Warm pinks and cool blues interact to create a vibration of light.<br><b>2. Complementary Jumps:</b> Using color opposites to make light sources appear extraordinarily bright.<br><b>3. Broken Color:</b> Fragmented brushstrokes create a shimmering, atmospheric effect.",
+                prompt: ["Temperature Logic", "Chromatic Richness", "Light Flow Perception"]
+            },
+            5: { 
+                name: "Multiplicity", title: "Multiplicity Mastery", img1: "Multiplicity1.PNG", img2: "Multiplicity2.png", author: "Alberto Mielgo",
+                analysis: "<b>1. Geometric Deconstruction:</b> Replacing soft transitions with hard-edged blocks of color.<br><b>2. Value Steps:</b> Organizing values into 3-4 distinct, clear steps.<br><b>3. Volumetric Construction:</b> Defining spatial overlapping purely through edge relationships.",
+                prompt: ["Edge Decisiveness", "Value Step Distribution", "Structural Accuracy"]
+            },
+            6: { 
+                name: "Unity", title: "Unity Mastery", img1: "Unity1.PNG", img2: "Unity2.png", author: "William Bailey",
+                analysis: "<b>1. Subtle Value Gradation:</b> Extremely fine transitions in grey scales to express timeless, sculptural volume.<br><b>2. Edge Control:</b> Balancing hard and soft edges to embed objects naturally into the background for a unified tone.",
+                prompt: ["Gradiant Delicacy", "Edge Softness Balance", "Tonal Consistency"]
+            }
+        };
+
+        let currentId = null;
+
+        function enterPath(id) {
+            currentId = id;
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('training-screen').classList.remove('hidden');
+            renderStep(1);
+        }
+
+        function renderStep(step) {
+            const data = learningConfig[currentId];
+            const container = document.getElementById('step-ui');
+            document.getElementById('dim-title').innerText = data.title;
+            document.getElementById('dim-label').innerText = `${data.name} / Step 0${step}`;
+
+            if (step === 1) {
+                container.innerHTML = `
+                    <div class="max-w-3xl mx-auto space-y-8 animate-in fade-in">
+                        <div class="text-left bg-white/40 p-8 rounded-2xl border border-white/60">
+                            <h3 class="text-[#a35d51] font-bold mb-4 italic text-lg">Artwork by: ${data.author}</h3>
+                            <div class="text-base leading-relaxed text-[#064439]">${data.analysis}</div>
+                        </div>
+                        <img src="${folder}${data.img1}" class="art-img mx-auto">
+                        <div class="text-center"><button onclick="renderStep(2)" class="bg-[#064439] text-white px-12 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition uppercase tracking-widest">Start Workshop</button></div>
+                    </div>`;
+            } else if (step === 2) {
+                container.innerHTML = `
+                    <div class="max-w-3xl mx-auto space-y-6 text-center animate-in slide-in-from-bottom-4">
+                        <p class="text-2xl font-bold italic opacity-80">"Replicate the Master's Essence"</p>
+                        <img src="${folder}${data.img2}" class="art-img mx-auto">
+                        <div class="pt-6">
+                            <input type="file" id="user-upload" class="hidden" accept="image/*" onchange="handleUpload(event)">
+                            <button onclick="document.getElementById('user-upload').click()" class="bg-[#a35d51] text-white px-12 py-4 rounded-2xl font-bold shadow-lg uppercase tracking-widest">Upload My Practice</button>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        async function handleUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const container = document.getElementById('step-ui');
+            container.innerHTML = `<div class="text-center space-y-4 flex flex-col items-center"><div class="loader"></div><p class="animate-pulse font-bold text-xl mt-4">AI Mentor is analyzing your work...</p></div>`;
+
+            try {
+                const base64 = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = () => r(rd.result.split(',')[1]);
+                    rd.readAsDataURL(file);
+                });
+                const resp = await fetch("https://ark.cn-beijing.volces.com/api/v3/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${ARK_API_KEY.trim()}` },
+                    body: JSON.stringify({
+                        model: ENDPOINT_ID,
+                        messages: [{
+                            role: "user",
+                            content: [
+                                { type: "text", text: `As an art mentor, analyze this practice based on the ${learningConfig[currentId].name} dimension. Provide a score from 0-100. Return ONLY JSON: {"score": number, "advices": ["specific advice in English"]}` },
+                                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64}` } }
+                            ]
+                        }]
+                    })
+                });
+                const resData = await resp.json();
+                let aiResult = JSON.parse(resData.choices[0].message.content.match(/\{.*\}/s)[0]);
+                if (aiResult.score <= 10) aiResult.score = aiResult.score * 10;
+                showResult(URL.createObjectURL(file), aiResult);
+            } catch (e) { alert("Analysis failed. Please try again."); renderStep(2); }
+        }
+
+        function showResult(userImgUrl, result) {
+            const data = learningConfig[currentId];
+            const container = document.getElementById('step-ui');
+            const finalScore = Math.round(result.score);
+            let level = { text: "Keep Trying!", color: "text-gray-400" };
+            if (finalScore >= 85) level = { text: "Masterful Match!", color: "text-orange-500" };
+            else if (finalScore >= 70) level = { text: "Excellent Attempt!", color: "text-green-600" };
+            else if (finalScore >= 40) level = { text: "Good Progress!", color: "text-blue-500" };
+
+            container.innerHTML = `
+                <div class="grid lg:grid-cols-2 gap-10 animate-in fade-in duration-500">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div><p class="text-[10px] font-bold opacity-40 uppercase mb-2">Masterpiece</p><img src="${folder}${data.img1}" class="w-full rounded-xl shadow aspect-square object-cover bg-white"></div>
+                            <div><p class="text-[10px] font-bold opacity-40 uppercase mb-2">Your Work</p><img src="${userImgUrl}" class="w-full rounded-xl shadow border-2 border-white aspect-square object-cover bg-white"></div>
+                        </div>
+                        <div class="p-8 bg-white rounded-3xl text-center shadow-inner border border-black/5">
+                            <p class="text-[10px] font-bold opacity-40 uppercase mb-1">Matching Score</p>
+                            <div class="text-7xl font-bold ${level.color}">${finalScore}</div>
+                            <div class="text-xl font-bold mt-2 uppercase tracking-tighter">${level.text}</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-between">
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-bold flex items-center"><span class="w-2 h-6 bg-[#a35d51] mr-3 rounded-full"></span> Detail Metrics</h3>
+                            <div class="space-y-5">
+                                ${data.prompt.map((p, i) => {
+                                    const s = Math.max(10, Math.min(100, finalScore + (i % 2 === 0 ? 5 : -5) + Math.floor(Math.random()*5)));
+                                    return `<div>
+                                        <div class="flex justify-between text-[11px] font-bold mb-1.5 opacity-60"><span>${p}</span><span>${s}%</span></div>
+                                        <div class="h-2 bg-black/5 rounded-full overflow-hidden"><div class="h-full bg-[#064439] bar-grow" style="width:${s}%"></div></div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                            <div class="p-4 bg-white/50 border-l-4 border-[#a35d51] rounded-r-xl text-sm italic opacity-80">AI Mentor: ${result.advices[0]}</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // --- 新增：自动检测跳转参数 ---
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dimParam = urlParams.get('dim');
+            if (dimParam) {
+                const id = parseInt(dimParam);
+                if (learningConfig[id]) {
+                    enterPath(id);
+                } else if (id === 4) {
+                    alert("The Recessional Dimension is coming soon!");
+                }
+            }
+        };
+    </script>
+</body>
+</html>
