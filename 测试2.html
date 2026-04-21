@@ -44,7 +44,7 @@
                     <p id="dim-label" class="text-xs uppercase tracking-[0.3em] opacity-40 font-bold mb-2"></p>
                     <h1 id="dim-title" class="text-4xl font-bold"></h1>
                 </div>
-                <button onclick="location.reload()" class="text-xs border border-[#064439]/30 px-6 py-2 rounded-full hover:bg-[#064439] hover:text-white transition-all font-bold uppercase tracking-widest">Back to Hub</button>
+                <button onclick="showHub()" class="text-xs border border-[#064439]/30 px-6 py-2 rounded-full hover:bg-[#064439] hover:text-white transition-all font-bold uppercase tracking-widest">Back to Hub</button>
             </header>
             <section id="step-ui" class="glass-card p-6 md:p-10 min-h-[500px] flex flex-col justify-center"></section>
         </div>
@@ -56,31 +56,11 @@
         const folder = "风格库2/";
 
         const learningConfig = {
-            1: { 
-                name: "Linear", title: "Linear Mastery", img1: "Linear1.PNG", img2: "Linear2.png", author: "James Jean",
-                analysis: "<b>1. Dynamic Line Weight:</b> Lines thicken at joints and taper into thin wisps on lit surfaces, creating a sense of 'breath'.<br><b>2. Decorative Abstraction:</b> Lines follow bone and muscle structures, preserving volume while adding a surrealist aesthetic.",
-                prompt: ["Curvilinear Smoothness", "Structural Weighting Logic", "Line Breath Control"]
-            },
-            2: { 
-                name: "Painterly", title: "Painterly Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Malika Favre",
-                analysis: "<b>1. Extreme Shape Compression:</b> Relying on negative space to define objects, completely avoiding gradients.<br><b>2. Color-Driven Space:</b> Creating depth through overlapping silhouettes and color adjacency rather than perspective.",
-                prompt: ["Silhouette Recognition", "Value Compression Boldness", "Edge Definition Precision"]
-            },
-            3: { 
-                name: "Planar", title: "Planar Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Claude Monet",
-                analysis: "<b>1. Temperature Contrast:</b> Warm pinks and cool blues interact to create a vibration of light.<br><b>2. Complementary Jumps:</b> Using color opposites to make light sources appear extraordinarily bright.<br><b>3. Broken Color:</b> Fragmented brushstrokes create a shimmering, atmospheric effect.",
-                prompt: ["Temperature Logic", "Chromatic Richness", "Light Flow Perception"]
-            },
-            5: { 
-                name: "Multiplicity", title: "Multiplicity Mastery", img1: "Multiplicity1.PNG", img2: "Multiplicity2.png", author: "Alberto Mielgo",
-                analysis: "<b>1. Geometric Deconstruction:</b> Replacing soft transitions with hard-edged blocks of color.<br><b>2. Value Steps:</b> Organizing values into 3-4 distinct, clear steps.<br><b>3. Volumetric Construction:</b> Defining spatial overlapping purely through edge relationships.",
-                prompt: ["Edge Decisiveness", "Value Step Distribution", "Structural Accuracy"]
-            },
-            6: { 
-                name: "Unity", title: "Unity Mastery", img1: "Unity1.PNG", img2: "Unity2.png", author: "William Bailey",
-                analysis: "<b>1. Subtle Value Gradation:</b> Extremely fine transitions in grey scales to express timeless, sculptural volume.<br><b>2. Edge Control:</b> Balancing hard and soft edges to embed objects naturally into the background for a unified tone.",
-                prompt: ["Gradiant Delicacy", "Edge Softness Balance", "Tonal Consistency"]
-            }
+            1: { name: "Linear", title: "Linear Mastery", img1: "Linear1.PNG", img2: "Linear2.png", author: "James Jean", analysis: "<b>1. Dynamic Line Weight:</b> Lines thicken at joints and taper into thin wisps on lit surfaces, creating a sense of 'breath'.<br><b>2. Decorative Abstraction:</b> Lines follow bone and muscle structures, preserving volume while adding a surrealist aesthetic.", prompt: ["Curvilinear Smoothness", "Structural Weighting Logic", "Line Breath Control"] },
+            2: { name: "Painterly", title: "Painterly Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Malika Favre", analysis: "<b>1. Extreme Shape Compression:</b> Relying on negative space to define objects, completely avoiding gradients.<br><b>2. Color-Driven Space:</b> Creating depth through overlapping silhouettes and color adjacency rather than perspective.", prompt: ["Silhouette Recognition", "Value Compression Boldness", "Edge Definition Precision"] },
+            3: { name: "Planar", title: "Planar Mastery", img1: "Painterly1.png", img2: "Painterly2.png", author: "Claude Monet", analysis: "<b>1. Temperature Contrast:</b> Warm pinks and cool blues interact to create a vibration of light.<br><b>2. Complementary Jumps:</b> Using color opposites to make light sources appear extraordinarily bright.<br><b>3. Broken Color:</b> Fragmented brushstrokes create a shimmering, atmospheric effect.", prompt: ["Temperature Logic", "Chromatic Richness", "Light Flow Perception"] },
+            5: { name: "Multiplicity", title: "Multiplicity Mastery", img1: "Multiplicity1.PNG", img2: "Multiplicity2.png", author: "Alberto Mielgo", analysis: "<b>1. Geometric Deconstruction:</b> Replacing soft transitions with hard-edged blocks of color.<br><b>2. Value Steps:</b> Organizing values into 3-4 distinct, clear steps.<br><b>3. Volumetric Construction:</b> Defining spatial overlapping purely through edge relationships.", prompt: ["Edge Decisiveness", "Value Step Distribution", "Structural Accuracy"] },
+            6: { name: "Unity", title: "Unity Mastery", img1: "Unity1.PNG", img2: "Unity2.png", author: "William Bailey", analysis: "<b>1. Subtle Value Gradation:</b> Extremely fine transitions in grey scales to express timeless, sculptural volume.<br><b>2. Edge Control:</b> Balancing hard and soft edges to embed objects naturally into the background for a unified tone.", prompt: ["Gradiant Delicacy", "Edge Softness Balance", "Tonal Consistency"] }
         };
 
         let currentId = null;
@@ -90,6 +70,16 @@
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('training-screen').classList.remove('hidden');
             renderStep(1);
+        }
+
+        function showHub() {
+            // 修复点：清除URL参数并重置显示，确保从外部跳入时也能回到主页
+            const url = new URL(window.location);
+            url.searchParams.delete('dim');
+            window.history.pushState({}, '', url);
+            
+            document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('training-screen').classList.add('hidden');
         }
 
         function renderStep(step) {
@@ -151,12 +141,10 @@
                 
                 const resData = await resp.json();
                 let aiResult = JSON.parse(resData.choices[0].message.content.match(/\{.*\}/s)[0]);
-                
                 if (aiResult.score <= 10) aiResult.score = aiResult.score * 10;
-                
                 showResult(URL.createObjectURL(file), aiResult);
             } catch (e) { 
-                alert("Analysis failed. Please check your connection and try again."); 
+                alert("Analysis failed."); 
                 renderStep(2); 
             }
         }
@@ -165,11 +153,9 @@
             const data = learningConfig[currentId];
             const container = document.getElementById('step-ui');
             const finalScore = Math.round(result.score);
-            
             let level = { text: "Keep Trying!", color: "text-gray-400" };
             if (finalScore >= 85) level = { text: "Masterful Match!", color: "text-orange-500" };
             else if (finalScore >= 70) level = { text: "Excellent Attempt!", color: "text-green-600" };
-            else if (finalScore >= 40) level = { text: "Good Progress!", color: "text-blue-500" };
 
             container.innerHTML = `
                 <div class="grid lg:grid-cols-2 gap-10 animate-in fade-in duration-500">
@@ -184,31 +170,25 @@
                             <div class="text-xl font-bold mt-2 uppercase tracking-tighter">${level.text}</div>
                         </div>
                     </div>
-
                     <div class="flex flex-col justify-between">
                         <div class="space-y-6">
                             <h3 class="text-xl font-bold flex items-center"><span class="w-2 h-6 bg-[#a35d51] mr-3 rounded-full"></span> Detail Metrics</h3>
                             <div class="space-y-5">
                                 ${data.prompt.map((p, i) => {
                                     const s = Math.max(10, Math.min(100, finalScore + (i % 2 === 0 ? 5 : -5) + Math.floor(Math.random()*5)));
-                                    return `<div>
-                                        <div class="flex justify-between text-[11px] font-bold mb-1.5 opacity-60"><span>${p}</span><span>${s}%</span></div>
-                                        <div class="h-2 bg-black/5 rounded-full overflow-hidden"><div class="h-full bg-[#064439] bar-grow" style="width:${s}%"></div></div>
-                                    </div>`;
+                                    return `<div><div class="flex justify-between text-[11px] font-bold mb-1.5 opacity-60"><span>${p}</span><span>${s}%</span></div><div class="h-2 bg-black/5 rounded-full overflow-hidden"><div class="h-full bg-[#064439] bar-grow" style="width:${s}%"></div></div></div>`;
                                 }).join('')}
                             </div>
                             <div class="p-4 bg-white/50 border-l-4 border-[#a35d51] rounded-r-xl text-sm italic opacity-80">AI Mentor: ${result.advices[0]}</div>
                         </div>
-
                         <div class="mt-8 pt-6 border-t border-black/10 text-center">
                             <p class="text-lg font-bold italic mb-4 text-[#064439]">Need some help?</p>
-                            <button onclick="window.location.href='style_transfer.html'" class="w-full bg-[#064439] text-white py-5 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#a35d51] transition shadow-xl">Let the Master paint for you</button>
+                            <button onclick=\"window.location.href='测试3.html'\" class=\"w-full bg-[#064439] text-white py-5 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#a35d51] transition shadow-xl\">Let the Master paint for you</button>
                         </div>
                     </div>
                 </div>`;
         }
 
-        // --- 新增：页面加载时自动解析 URL 中的 dim 参数并跳转 ---
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const dimId = urlParams.get('dim');
